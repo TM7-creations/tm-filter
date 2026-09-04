@@ -28,7 +28,8 @@ $$
 `tm_gyro_update_fast()` calcule Euler, puis normalise :
 
 $$
-q_{k+1}=\operatorname{normalize}\!\left(q_k+\frac{\Delta t}{2}q_k\otimes[0,\boldsymbol\omega]\right).
+\tilde q_{k+1}=q_k+\frac{\Delta t}{2}q_k\otimes[0,\boldsymbol\omega],
+\qquad q_{k+1}=\frac{\tilde q_{k+1}}{\|\tilde q_{k+1}\|}.
 $$
 
 Les deux fonctions partent de la même équation continue, mais elles ne sont pas strictement équivalentes pour un pas fini. L’angle d’Euler normalisé vaut $2\arctan(x)$, alors que l’angle exact vaut $2x$. Leur écart devient très faible lorsque $\|\boldsymbol\omega\|\Delta t$ est petit.
@@ -55,7 +56,7 @@ Le filtre utilise la prédiction gyroscopique pour choisir ce degré de liberté
 En notant $q_g$ la prédiction gyroscopique et $R(q)$ la rotation du repère capteur vers le repère monde, le problème s’écrit :
 
 $$
-q_a=\underset{\|q\|=1,\;R(q)\hat a=e_z}{\operatorname{argmin}}
+q_a=\underset{\|q\|=1,\;R(q)\hat a=e_z}{\mathrm{arg\,min}}
 \;2\arccos\!\left(|\langle q_g,q\rangle|\right),
 \qquad e_z=(0,0,1).
 $$
@@ -71,7 +72,7 @@ Les seuils se règlent avec `accel_tolerance` et `max_accel_direction_rate`. La 
 Le quaternion corrigé est rapproché du quaternion gyroscopique par une interpolation linéaire normalisée suivant le chemin de signe le plus court. La loi conservée du prototype est :
 
 $$
-\text{poids}=\operatorname{clamp}(k_f\,\alpha,0,1),
+\text{poids}=\min\!\left(1,\max\!\left(0,k_f\,\alpha\right)\right),
 $$
 
 où $\alpha$ est l’écart angulaire en radians et `fusion_gain` vaut `0.1` par défaut. Ainsi, `fusion_gain` est un gain en radian⁻¹ ; ce n’est pas directement un pourcentage fixe de confiance.
